@@ -83,6 +83,10 @@ export const Schedule = styled.div`
       display: flex;
       align-items: center;
 
+      &:last-child {
+        text-transform: capitalize;
+      }
+
       & + span:before {
         content: '';
         width: 1px;
