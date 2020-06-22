@@ -15,19 +15,41 @@ export const HeaderContent = styled.div`
   align-items: center;
 
   > img {
+    width: 138px;
     height: 80px;
   }
 
   button {
-    margin-left: auto;
     background: transparent;
     border: 0;
+  }
 
-    svg {
-      color: #999591;
-      width: 20px;
-      height: 20px;
+  button,
+  a {
+    transition: opacity 0.2s;
+  }
+
+  button,
+  a {
+    &:hover {
+      opacity: 0.8;
     }
+  }
+`;
+
+export const ActionLinks = styled.div`
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+
+  a {
+    margin-right: 8px;
+  }
+
+  svg {
+    color: #999591;
+    width: 20px;
+    height: 20px;
   }
 `;
 

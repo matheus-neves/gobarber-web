@@ -4,11 +4,13 @@ import ptBR from 'date-fns/locale/pt-BR';
 import DayPicker, { DayModifiers } from 'react-day-picker';
 import 'react-day-picker/lib/style.css';
 
-import { FiPower, FiClock } from 'react-icons/fi';
+import { FiPower, FiClock, FiUser } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
 import {
   Container,
   Header,
   HeaderContent,
+  ActionLinks,
   Profile,
   Content,
   Schedule,
@@ -147,13 +149,20 @@ const Dashboard: React.FC = () => {
             <img src={user.avatar_url} alt={user.name} />
             <div>
               <span>Bem-vindo,</span>
-              <strong>{user.name}</strong>
+              <Link to="/profile">
+                <strong>{user.name}</strong>
+              </Link>
             </div>
           </Profile>
 
-          <button type="button" onClick={signOut}>
-            <FiPower />
-          </button>
+          <ActionLinks>
+            <Link to="/profile">
+              <FiUser />
+            </Link>
+            <button type="button" onClick={signOut}>
+              <FiPower />
+            </button>
+          </ActionLinks>
         </HeaderContent>
       </Header>
 
