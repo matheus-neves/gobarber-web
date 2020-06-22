@@ -43,4 +43,8 @@ export default createGlobalStyle`
     transition: background-color 5000s ease-in-out 0s;
   }
 
+  a {
+    text-decoration: none;
+  }
+
 `;
