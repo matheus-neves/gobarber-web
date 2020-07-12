@@ -1,9 +1,12 @@
 import React from 'react';
 import { render, fireEvent, wait } from '@testing-library/react';
+
 import ResetPassword from '../../pages/ResetPassword';
 
 const mockedHistoryPush = jest.fn();
+const mockedPost = jest.fn();
 const mockedAddToast = jest.fn();
+const mockedSearchToken = jest.fn().mockReturnValueOnce('jwt-test');
 
 jest.mock('react-router-dom', () => {
   return {
@@ -11,7 +14,7 @@ jest.mock('react-router-dom', () => {
       push: mockedHistoryPush,
     }),
     useLocation: () => ({
-      search: '123456789',
+      search: mockedSearchToken(),
     }),
   };
 });
@@ -26,7 +29,9 @@ jest.mock('../../hooks/toast', () => {
 
 jest.mock('../../services/api', () => {
   return {
-    post: jest.fn(),
+    post: () => {
+      mockedPost;
+    },
   };
 });
 
@@ -77,26 +82,30 @@ describe('ResetPassword Page', () => {
     });
   });
 
-  // it('should not be able to signin with empty token', async () => {
-  //   const { getByPlaceholderText, getByText } = render(<ResetPassword />);
+  it('should not be able to signin with empty token', async () => {
+    mockedSearchToken.mockImplementationOnce(() => {
+      return '';
+    });
 
-  //   const passwordField = getByPlaceholderText('Nova senha');
-  //   const passwordConfirmationField = getByPlaceholderText(
-  //     'Confirmação da senha',
-  //   );
+    const { getByPlaceholderText, getByText } = render(<ResetPassword />);
 
-  //   const buttonElement = getByText('Alterar senha');
+    const passwordField = getByPlaceholderText('Nova senha');
+    const passwordConfirmationField = getByPlaceholderText(
+      'Confirmação da senha',
+    );
 
-  //   fireEvent.change(passwordField, { target: { value: '123456' } });
-  //   fireEvent.change(passwordConfirmationField, {
-  //     target: { value: '123456' },
-  //   });
-  //   fireEvent.click(buttonElement);
+    const buttonElement = getByText('Alterar senha');
 
-  //   await wait(() => {
-  //     expect(mockedToken).toBeFalsy();
-  //   });
-  // });
+    fireEvent.change(passwordField, { target: { value: '123456' } });
+    fireEvent.change(passwordConfirmationField, {
+      target: { value: '123456' },
+    });
+    fireEvent.click(buttonElement);
+
+    await wait(() => {
+      expect(mockedPost).not.toHaveBeenCalled();
+    });
+  });
 
   it('should display an error if login fails', async () => {
     const { getByPlaceholderText, getByText } = render(<ResetPassword />);
