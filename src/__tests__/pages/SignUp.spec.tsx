@@ -3,6 +3,7 @@ import { render, fireEvent, wait } from '@testing-library/react';
 import SignUp from '../../pages/SignUp';
 
 const mockedHistoryPush = jest.fn();
+const mockedPost = jest.fn(() => ({}));
 const mockedAddToast = jest.fn();
 
 jest.mock('react-router-dom', () => {
@@ -24,7 +25,7 @@ jest.mock('../../hooks/toast', () => {
 
 jest.mock('../../services/api', () => {
   return {
-    post: jest.fn(),
+    post: () => mockedPost(),
   };
 });
 
@@ -74,6 +75,9 @@ describe('SignUp Page', () => {
   });
 
   it('should display an error if login fails', async () => {
+    mockedPost.mockImplementation(() => {
+      throw new Error();
+    });
     const { getByPlaceholderText, getByText } = render(<SignUp />);
 
     const nameField = getByPlaceholderText('Nome');
