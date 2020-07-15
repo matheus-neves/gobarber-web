@@ -1,15 +1,9 @@
 import React from 'react';
 import { render, fireEvent, wait } from '@testing-library/react';
 import Profile from '../../pages/Profile';
-import * as GetErrors from '../../utils/getValidationErrors';
 
 const mockedHistoryPush = jest.fn();
-const mockedPut = jest.fn().mockImplementation(() => ({
-  id: 1,
-  name: 'John Doe',
-  email: 'johndoe@example.com.br',
-  avatar_url: 'avatar-example.jpg',
-}));
+const mockedPut = jest.fn(() => ({}));
 const mockedAddToast = jest.fn();
 
 jest.mock('../../hooks/toast', () => {
@@ -44,9 +38,7 @@ jest.mock('../../hooks/auth', () => {
 
 jest.mock('../../services/api', () => {
   return {
-    put: () => {
-      return mockedPut;
-    },
+    put: () => mockedPut(),
     patch: () => jest.fn(),
   };
 });
@@ -55,6 +47,7 @@ describe('Profile Page', () => {
   beforeEach(() => {
     mockedHistoryPush.mockClear();
     mockedAddToast.mockClear();
+    mockedPut.mockClear();
   });
 
   it('should be able to update profile', async () => {
@@ -74,6 +67,23 @@ describe('Profile Page', () => {
     fireEvent.change(passwordConfirmationField, {
       target: { value: '123123' },
     });
+
+    fireEvent.click(buttonElement);
+
+    await wait(() => {
+      expect(mockedHistoryPush).toHaveBeenCalledWith('/dashboard');
+    });
+  });
+
+  it('should be able to update profile without updating password', async () => {
+    const { getByPlaceholderText, getByText } = render(<Profile />);
+
+    const nameField = getByPlaceholderText('Nome');
+    const emailField = getByPlaceholderText('E-mail');
+    const buttonElement = getByText('Confirmar mudanças');
+
+    fireEvent.change(nameField, { target: { value: 'John Doe' } });
+    fireEvent.change(emailField, { target: { value: 'johndoe@example.com' } });
 
     fireEvent.click(buttonElement);
 
@@ -117,6 +127,40 @@ describe('Profile Page', () => {
     });
   });
 
+  it('should display an error with update profile fails', async () => {
+    mockedPut.mockImplementation(() => {
+      throw new Error();
+    });
+
+    const { getByPlaceholderText, getByText } = render(<Profile />);
+
+    const nameField = getByPlaceholderText('Nome');
+    const emailField = getByPlaceholderText('E-mail');
+
+    const oldPassowordField = getByPlaceholderText('Senha atual');
+    const passwordField = getByPlaceholderText('Nova senha');
+    const confirmationPassowordField = getByPlaceholderText('Confirmar senha');
+
+    const buttonElement = getByText('Confirmar mudanças');
+
+    fireEvent.change(nameField, { target: { value: 'John Doe' } });
+    fireEvent.change(emailField, { target: { value: 'johndoe@example.com' } });
+
+    fireEvent.change(oldPassowordField, { target: { value: '' } });
+    fireEvent.change(passwordField, { target: { value: '' } });
+    fireEvent.change(confirmationPassowordField, { target: { value: '' } });
+
+    fireEvent.click(buttonElement);
+
+    await wait(() => {
+      expect(mockedAddToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'error',
+        }),
+      );
+    });
+  });
+
   it('should not be able to update profile in with invalid credentials', async () => {
     const { getByPlaceholderText, getByText } = render(<Profile />);
 
@@ -126,8 +170,6 @@ describe('Profile Page', () => {
     const passwordField = getByPlaceholderText('Nova senha');
     const passwordConfirmationField = getByPlaceholderText('Confirmar senha');
     const buttonElement = getByText('Confirmar mudanças');
-
-    const spyGetValidationError = jest.spyOn(GetErrors, 'default');
 
     fireEvent.change(nameField, { target: { value: 'John Doe' } });
     fireEvent.change(emailField, { target: { value: 'johndoe' } });
@@ -141,9 +183,6 @@ describe('Profile Page', () => {
 
     await wait(() => {
       expect(mockedPut).not.toHaveBeenCalled();
-      expect(spyGetValidationError).toHaveReturnedWith({
-        email: 'Digite um e-mail válido',
-      });
     });
   });
 });
