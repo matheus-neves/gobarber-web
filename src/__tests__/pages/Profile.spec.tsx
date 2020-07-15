@@ -47,12 +47,14 @@ jest.mock('../../services/api', () => {
     put: () => {
       return mockedPut;
     },
+    patch: () => jest.fn(),
   };
 });
 
 describe('Profile Page', () => {
   beforeEach(() => {
     mockedHistoryPush.mockClear();
+    mockedAddToast.mockClear();
   });
 
   it('should be able to update profile', async () => {
@@ -77,6 +79,41 @@ describe('Profile Page', () => {
 
     await wait(() => {
       expect(mockedHistoryPush).toHaveBeenCalledWith('/dashboard');
+    });
+  });
+
+  it('should be able to update avatar profile', async () => {
+    const { getByTestId } = render(<Profile />);
+
+    const inputFileElement = getByTestId('input-file');
+
+    fireEvent.change(inputFileElement, {
+      target: {
+        files: ['picture-test.jpg'],
+      },
+    });
+
+    await wait(() => {
+      expect(mockedAddToast).toHaveBeenCalledWith({
+        type: 'success',
+        title: 'Avatar atualizado!',
+      });
+    });
+  });
+
+  it('should not be able to update avatar profile with empty input file value', async () => {
+    const { getByTestId } = render(<Profile />);
+
+    const inputFileElement = getByTestId('input-file');
+
+    fireEvent.change(inputFileElement, {
+      target: {
+        files: [],
+      },
+    });
+
+    await wait(() => {
+      expect(mockedAddToast).not.toHaveBeenCalled();
     });
   });
 
