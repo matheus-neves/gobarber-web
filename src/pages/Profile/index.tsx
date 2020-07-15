@@ -109,7 +109,7 @@ const Profile: React.FC = () => {
 
   const handleAvatarChange = useCallback(
     async (e: ChangeEvent<HTMLInputElement>) => {
-      if (e.target.files) {
+      if (e.target.files?.length) {
         const data = new FormData();
 
         data.append('avatar', e.target.files[0]);
@@ -150,7 +150,12 @@ const Profile: React.FC = () => {
             <img src={user.avatar_url} alt={user.name} />
             <label htmlFor="avatar">
               <FiCamera />
-              <input type="file" id="avatar" onChange={handleAvatarChange} />
+              <input
+                type="file"
+                data-testid="input-file"
+                id="avatar"
+                onChange={handleAvatarChange}
+              />
             </label>
           </AvatarInput>
 
