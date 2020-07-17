@@ -24,7 +24,9 @@ const Toast: React.FC<ToastProps> = ({ message, style }) => {
   const { removeToast } = useToast();
 
   useEffect(() => {
+    console.log(message.id);
     const timer = setTimeout(() => {
+      console.log('inside');
       removeToast(message.id);
     }, 3000);
 
@@ -44,7 +46,11 @@ const Toast: React.FC<ToastProps> = ({ message, style }) => {
         <strong>{message.title}</strong>
         {message.description && <p>{message.description}</p>}
       </div>
-      <button type="button" onClick={() => removeToast(message.id)}>
+      <button
+        type="button"
+        data-testid="button-remove-toast"
+        onClick={() => removeToast(message.id)}
+      >
         <FiXCircle />
       </button>
     </Container>
